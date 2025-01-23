@@ -7,6 +7,8 @@ import (
 type Config struct {
 	Port   string `mapstructure:"PORT"`
 	Origin string `mapstructure:"CLIENT_ORIGIN"`
+	DBUri  string `mapstructure:"MONGODB_URI"`
+	DBName string `mapstructure:"MONGODB_DBNAME"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

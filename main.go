@@ -12,17 +12,16 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
-	ctx    context.Context
-	server *gin.Engine
-
-	authService services.AuthService
-
+	ctx            context.Context
+	server         *gin.Engine
+	authService    services.AuthService
 	authController controllers.AuthController
-
-	authRoute routes.AuthRoute
+	authRoute      routes.AuthRoute
 )
 
 func main() {
@@ -36,11 +35,13 @@ func main() {
 	log.Printf("config load success: %v\n", config)
 	ctx = context.TODO()
 
-	// init service and controller
-	authService = services.NewAuthService(ctx, nil)
+	// Connect to MongoDB
+	mongoconn := options.Client().ApplyURI(config.DBUri)
+	mongoClient, err := mongo.Connect(ctx, mongoconn)
 
+	// init service, controller, router
+	authService = services.NewAuthService(ctx, config, mongoClient)
 	authController = controllers.NewAuthController(ctx, authService)
-
 	authRoute = routes.NewAuthRoute(authController)
 
 	startGinServer(config)
